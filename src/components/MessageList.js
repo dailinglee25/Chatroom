@@ -1,30 +1,24 @@
 // src/components/MessageList.js
-export default function MessageList({ data, email }) {
+export default function MessageList({ data, userUid }) {
   return (
-    <ul
-      className="list-unstyled mb-0"
-      style={{
-        height: "100%",        // 填滿父層 (flex 容器)
-        margin: 0,
-        paddingRight: "0.5rem",
-      }}
-    >
+    <ul className="list-unstyled mb-0" style={{ height: "100%", margin: 0 }}>
       {data.map((m) => (
         <li
           key={m.id}
           className={`my-2 d-flex flex-column ${
-            m.email === email ? "align-items-end" : "align-items-start"
+            m.senderUid === userUid ? "align-items-end" : "align-items-start"
           }`}
         >
+          {/* 顯示發送者 */}
           <div style={{ fontSize: "0.75rem", color: "#888" }}>
-            {m.email || "Unknown"}
+            {m.senderEmail}
           </div>
-
+          {/* 顯示訊息 */}
           <span
             className={`badge rounded-pill ${
-              m.email === email ? "bg-primary" : "bg-secondary"
+              m.senderUid === userUid ? "bg-primary" : "bg-secondary"
             }`}
-            style={{ maxWidth: "70%", wordBreak: "break-word" }}
+            style={{ maxWidth: "100%", wordBreak: "break-word" }}
           >
             {m.text}
           </span>

@@ -5,6 +5,7 @@ import SignUp from "./pages/SignUp";
 import Navbar from "./components/Navbar";
 import { useAuth } from "./contexts/AuthContext";
 
+
 export default function App() {
   const { user } = useAuth();
 
@@ -24,6 +25,7 @@ export default function App() {
           path="/signup"
           element={user ? <Navigate to="/" replace /> : <SignUp />}
         />
+
       </Routes>
     </>
   );

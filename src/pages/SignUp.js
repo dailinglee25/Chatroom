@@ -1,8 +1,10 @@
 // src/pages/SignUp.js
 import { useState } from "react";
-//import { auth, createUserWithEmailAndPassword } from "../firebase";
 import { auth } from "../firebase";
+//import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";              // ← 新增
+import { db } from "../firebase";  
 import { useNavigate, Link } from "react-router-dom";
 
 export default function SignUp() {
@@ -18,7 +20,11 @@ export default function SignUp() {
       return;
     }
     try {
-      await createUserWithEmailAndPassword(auth, form.email, form.pwd);
+      //await createUserWithEmailAndPassword(auth, form.email, form.pwd);
+      const cred = await createUserWithEmailAndPassword(auth, form.email, form.pwd);
+      await setDoc(doc(db, "users", cred.user.uid), {
+        email: cred.user.email,
+      });
       nav("/");
     } catch (e) {
       setErr(e.message);
