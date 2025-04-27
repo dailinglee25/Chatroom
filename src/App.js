@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route, Navigate } from "react-router-dom";
+import Chatroom from "./pages/Chatroom";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Navbar from "./components/Navbar";
+import { useAuth } from "./contexts/AuthContext";
 
-function App() {
+export default function App() {
+  const { user } = useAuth();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Navbar />
+      <Routes>
+        <Route
+          path="/"
+          element={user ? <Chatroom /> : <Navigate to="/signin" replace />}
+        />
+        <Route
+          path="/signin"
+          element={user ? <Navigate to="/" replace /> : <SignIn />}
+        />
+        <Route
+          path="/signup"
+          element={user ? <Navigate to="/" replace /> : <SignUp />}
+        />
+      </Routes>
+    </>
   );
 }
-
-export default App;
