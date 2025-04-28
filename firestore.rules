@@ -30,5 +30,11 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
+
+    match /chatrooms/{roomId}/messages/{msgId} {
+      allow delete: if request.auth != null
+    && resource.data.senderUid == request.auth.uid;
+}
+
   }
 }

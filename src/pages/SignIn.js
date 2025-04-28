@@ -1,27 +1,40 @@
 // src/pages/SignIn.js
-import { useState } from "react";
-// import {
-//     auth,
-//   signInWithEmailAndPassword,
-//   GoogleAuthProvider,
-//   signInWithPopup,
-// } from "../firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+//import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate, Link } from "react-router-dom";
-
+import { useAuth } from "../contexts/AuthContext";
+import "../App.css"; // 確保 CSS 已載入
 
 export default function SignIn() {
   const nav = useNavigate();
+  const {user} = useAuth();
   const [form, setForm] = useState({ email: "", pwd: "" });
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false); // 控制齒輪動畫
+  useEffect(() => {
+    if (user && !loading) {
+      nav("/");
+    }
+  }, [user, loading, nav]);
+  const onChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleSuccess = () => {
+    setLoading(true);
+    setTimeout(() => nav("/"), 1500);
+  };
 
   const login = async () => {
     try {
       await signInWithEmailAndPassword(auth, form.email, form.pwd);
-      nav("/");
+      handleSuccess();
     } catch (e) {
       setErr(e.message);
     }
@@ -30,11 +43,21 @@ export default function SignIn() {
   const google = async () => {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
-      nav("/");
+      handleSuccess();
     } catch (e) {
       setErr(e.message);
     }
   };
+
+  // 如果正在 loading，就只顯示齒輪動畫 Overlay
+  if (loading) {
+    return (
+      <div className="spinner-overlay">
+        <div className="gear-icon">⚙️</div>
+        <div className="loading-text">Loading…</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container p-4" style={{ maxWidth: 400 }}>

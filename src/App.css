@@ -36,3 +36,86 @@
     transform: rotate(360deg);
   }
 }
+
+/* 歡迎動畫的彈層 */
+.welcome-banner {
+  position: absolute;
+  top: 20%;                  /* 從容器上方 20% 的位置滑入 */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: bold;
+  z-index: 100;
+  /* 先執行 slideDownFade，再執行 fadeOut */
+  animation:
+    slideDownFade 1s ease-out,
+    fadeOut      0.5s ease-in 1.5s forwards;
+}
+
+/* slide down + fade in */
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* 最後 0.5s 淡出 */
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+/* 放到 App.css 最底端 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* 挂在根節點上的 class */
+.fade-in {
+  animation: fadeIn 1.5s ease-out forwards;
+}
+.fade-out {
+  animation: fadeOut 1.5s ease-in forwards;
+}
+
+/* 遮罩層 */
+.spinner-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* 齒輪圖示 */
+.gear-icon {
+  font-size: 4rem;
+  /* 旋轉一次，1.5 秒 */
+  animation: spin 1.5s linear;
+}
+
+/* keyframes */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
