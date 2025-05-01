@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { db } from "../firebase";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+import imageCompression from "browser-image-compression";
 import { useAuth } from "../contexts/AuthContext";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { db, storage } from "../firebase";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { setDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 
 export default function Profile() {
@@ -12,7 +14,8 @@ export default function Profile() {
         email: "",
         phone: "",
         address: "",
-        photoURL: ""
+        photoDataUrl: ""
+        //photoURL: ""
     });
     const [newPhoto, setNewPhoto] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -23,14 +26,15 @@ export default function Profile() {
             const docRef = doc(db, "users", user.uid);
             const snap = await getDoc(docRef);
             if (snap.exists()) {
-                setProfile(snap.data());
+                //setProfile(snap.data());
                 const data = snap.data();
                 setProfile({
                     displayName: data.displayName || "",
                     email: data.email || user.email,
                     phone: data.phone || "",
                     address: data.address || "",
-                    photoURL: data.photoURL || ""
+                    //photoURL: data.photoURL || ""
+                    photoDataUrl:data.photoDataUrl || ""
                 });
             } else {
                 // Initialize
@@ -39,15 +43,21 @@ export default function Profile() {
                     email: user.email,
                     phone: "",
                     address: "",
-                    photoURL: user.photoURL || ""
+                    //photoURL: user.photoURL || ""
+                    photoDataUrl: ""   
                 });
-                setProfile({
-                    displayName: user.displayName || "",
-                    email: user.email,
-                    phone: "",
-                    address: "",
-                    photoURL: user.photoURL || ""
-                });
+                // setProfile({
+                //     displayName: user.displayName || "",
+                //     email: user.email,
+                //     phone: "",
+                //     address: "",
+                //     photoURL: user.photoURL || ""
+                // });
+                setProfile({ displayName: user.displayName || "", 
+                    email: user.email, 
+                    phone: "", 
+                    address: "", 
+                    photoDataUrl: "" });
             }
             setLoading(false);
         }
@@ -65,27 +75,41 @@ export default function Profile() {
     const handleSave = async () => {
         try {
             const docRef = doc(db, "users", user.uid);
-            let updatedURL = profile.photoURL;
-
+            //let updatedURL = profile.photoURL;
+            let updatedDataUrl = profile.photoDataUrl;
+            // if (newPhoto) {
+            //     // 1️⃣ 上传新照片
+            //     const picRef = storageRef(storage, `profilePictures/${user.uid}.jpg`);
+            //     await uploadBytes(picRef, newPhoto);
+            //     updatedURL = await getDownloadURL(picRef);
+            // }
             if (newPhoto) {
-                // 1️⃣ 上传新照片
-                const picRef = storageRef(storage, `profilePictures/${user.uid}.jpg`);
-                await uploadBytes(picRef, newPhoto);
-                updatedURL = await getDownloadURL(picRef);
-            }
+                // **************** 壓縮並轉 Base64 ****************
+                const options = { maxSizeMB: 1, maxWidthOrHeight: 512, useWebWorker: true };
+                const compressed = await imageCompression(newPhoto, options);
+       
+                const dataUrl = await new Promise((res, rej) => {
+                  const reader = new FileReader();
+                  reader.onload = () => res(reader.result);
+                  reader.onerror = rej;
+                  reader.readAsDataURL(compressed);
+                });
+               updatedDataUrl = dataUrl;                   // << 更新 Base64 變數
+              }
 
             // 2️⃣ 写到 Firestore
             await updateDoc(docRef, {
                 displayName: profile.displayName || "",
                 phone: profile.phone || "",
                 address: profile.address || "",
-                photoURL: updatedURL || ""
+                //photoURL: updatedURL || ""
+                photoDataUrl: updatedDataUrl
             });
 
             // 3️⃣ 更新本地 state & 清除 newPhoto
             setProfile((prev) => ({
                 ...prev,
-                photoURL: updatedURL
+                photoURL: updatedDataUrl
             }));
             setNewPhoto(null);
 
@@ -119,14 +143,14 @@ export default function Profile() {
                         position: "relative"
                     }}
                 >
-                    {(newPhoto || profile.photoURL) ? (
+                    {(newPhoto || profile.photoDataUrl) ? (
                         <img
                             src={
                                 newPhoto
                                     ? URL.createObjectURL(newPhoto)
-                                    : profile.photoURL
+                                    : profile.photoDataUrl
                             }
-                            alt="Profile"
+                            alt="avatar"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                         />
                     ) : (
