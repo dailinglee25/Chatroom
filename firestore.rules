@@ -9,6 +9,16 @@ service cloud.firestore {
                    && request.auth.uid == userId;
     }
 
+    // 只有本人可讀寫自己的 user document
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    match /profilePictures/{allPaths=**} {
+      allow read: if request.auth.uid != null;
+      allow write: if request.auth.uid != null;
+    }
+
     // chatrooms 集合：允許已登入者建立；只有成員能讀；只有房主能改刪
     match /chatrooms/{roomId} {
       allow create: if request.auth != null;
@@ -24,6 +34,10 @@ service cloud.firestore {
          && request.auth.uid in
             get(/databases/$(database)/documents/chatrooms/$(roomId)).data.members;
       allow update, delete: if false;
+    }
+
+    match /chatrooms/{roomId}/messages/{msgId} {
+      allow create: if request.auth.uid != null;
     }
 
     // 其他路徑一律拒絕

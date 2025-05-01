@@ -1,5 +1,6 @@
 // src/App.js
 import { useEffect } from "react";
+import Profile from "./pages/Profile";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Chatroom from "./pages/Chatroom";
 import SignIn from "./pages/SignIn";
@@ -34,6 +35,7 @@ export default function App() {
         {/* /signin、/signup 永远渲染，由组件内部来跳转 */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/signin" replace />} />
       </Routes>
     </>
   );

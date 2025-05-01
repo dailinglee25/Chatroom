@@ -1,21 +1,22 @@
 // src/components/MessageList.js
-export default function MessageList({ data, userUid, onUnsend }) {
+export default function MessageList({ data, userUid, onUnsend, userProfiles }) {
   return (
     <ul className="list-unstyled mb-0" style={{ height: "100%", margin: 0 }}>
       {data.map((m) => {
-        // ← 在这里定义 isSender
         const isSender = m.senderUid === userUid;
-
+        const profile = userProfiles[m.senderUid];
+        const displayName = profile && profile.displayName && profile.displayName.trim()
+          ? profile.displayName
+          : m.senderEmail;
         return (
           <li
             key={m.id}
-            className={`my-2 d-flex flex-column ${
-              isSender ? "align-items-end" : "align-items-start"
-            }`}
+            className={`my-2 d-flex flex-column ${isSender ? "align-items-end" : "align-items-start"
+              }`}
           >
             {/* 顯示發送者 */}
             <div style={{ fontSize: "0.75rem", color: "#888" }}>
-              {m.senderEmail}
+              {displayName}
             </div>
 
             {/* 訊息＋垃圾桶圖示 */}
@@ -36,12 +37,26 @@ export default function MessageList({ data, userUid, onUnsend }) {
                   🗑️
                 </button>
               )}
-              <span
-                className={`badge rounded-pill ${isSender ? "bg-primary" : "bg-secondary"}`}
-                style={{ maxWidth: "100%", wordBreak: "break-word" }}
-              >
-                {m.text}
-              </span>
+
+              {m.imageDataUrl ? (
+                <img
+                  src={m.imageDataUrl}
+                  alt="sent"
+                  style={{
+                    maxWidth: "200px",
+                    maxHeight: "200px",
+                    borderRadius: "0.5rem",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <span
+                  className={`badge rounded-pill ${isSender ? "bg-primary" : "bg-secondary"}`}
+                  style={{ maxWidth: "100%", wordBreak: "break-word" }}
+                >
+                  {m.text}
+                </span>
+              )}
             </div>
           </li>
         );

@@ -24,6 +24,7 @@ export default function Navbar() {
       {user ? (
         <div className="d-flex align-items-center gap-3">
           <span className="text-muted small">{user.email}</span>
+          <Link className="btn btn-outline-primary btn-sm" to="/profile">Profile</Link>
           <button className="btn btn-outline-secondary btn-sm" onClick={handleLogout}>
             Logout
           </button>
